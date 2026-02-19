@@ -257,7 +257,7 @@
     @apply bg-yellow-500 text-base hover:bg-yellow-500 text-gray-900 w-full rounded h-11 font-semibold cursor-pointer;
   }
   .watchlist-remove {
-    @apply bg-red-500! hover:bg-red-500! text-gray-900!
+    @apply bg-red-500! hover:bg-red-500! text-gray-900!;
   }
   .watchlist-empty-container {
     @apply container gap-8 flex-col items-center md:mt-10 p-6 text-center;
@@ -487,3 +487,71 @@
 .scrollbar-hide-default::-webkit-scrollbar-thumb:hover {
   background-color: #9095A1;
 }
+
+/* Header + Nav visual styles (no component changes) */
+.header{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(15,23,42,0.9); /* dark slate */
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+/* center content and space between logo & nav */
+.header > div{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* force nav visible and style list horizontally */
+.header nav{ display: block !important; }
+.header nav ul{
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  align-items: center;
+}
+
+/* nav links */
+.header nav a{
+  color: #cbd5e1; /* tailwind gray-300 */
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: color .15s, background-color .15s, transform .08s;
+}
+
+/* hover and active */
+.header nav a:hover{
+  color: #f59e0b; /* yellow-500 */
+  background: rgba(255,255,255,0.03);
+  transform: translateY(-1px);
+}
+
+/* class applied by NavItems for active state (text-gray-100) */
+.header nav a.text-gray-100,
+.header nav a.text-gray-100:hover{
+  color: #ffffff !important;
+  background: rgba(255,255,255,0.04);
+}
+
+/* small screens: ensure logo size and spacing look good */
+.header img,
+.header .h-8{ height: 32px; }
+
+/* Keep page content visible under sticky header */
+main{ padding-top: 0.5rem; }
