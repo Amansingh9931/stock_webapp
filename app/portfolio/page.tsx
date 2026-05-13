@@ -136,7 +136,13 @@ export default function PortfolioPage() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => `$${value.toFixed(0)}`} />
+                  <Tooltip formatter={(value) =>
+                    typeof value === 'number'
+                      ? `$${value.toFixed(0)}`
+                      : Array.isArray(value)
+                      ? value.join(", ")
+                      : value ?? ""
+                  } />
                 </PieChart>
               </ResponsiveContainer>
               <div className="mt-4 space-y-2 text-xs">
@@ -210,7 +216,13 @@ export default function PortfolioPage() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="symbol" />
                 <YAxis />
-                <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                <Tooltip formatter={(value) =>
+                  typeof value === 'number'
+                    ? `$${value.toFixed(2)}`
+                    : Array.isArray(value)
+                    ? value.join(", ")
+                    : value ?? ""
+                } />
                 <Bar dataKey="gain" fill="#10B981" />
               </BarChart>
             </ResponsiveContainer>

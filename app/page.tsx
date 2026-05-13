@@ -120,7 +120,13 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                  <Tooltip formatter={(value) =>
+                    typeof value === 'number'
+                      ? `$${value.toFixed(2)}`
+                      : Array.isArray(value)
+                      ? value.join(", ")
+                      : value ?? ""
+                  } />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>

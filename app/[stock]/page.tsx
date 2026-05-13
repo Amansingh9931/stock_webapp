@@ -101,7 +101,13 @@ export default function StockDetailsPage() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="time" />
                     <YAxis domain={["dataMin", "dataMax"]} />
-                    <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                    <Tooltip formatter={(value) =>
+                      typeof value === 'number'
+                        ? `$${value.toFixed(2)}`
+                        : Array.isArray(value)
+                        ? value.join(", ")
+                        : value ?? ""
+                    } />
                     <Line
                       type="monotone"
                       dataKey="price"
@@ -125,7 +131,13 @@ export default function StockDetailsPage() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="time" />
                     <YAxis />
-                    <Tooltip formatter={(value) => (value / 1e6).toFixed(2) + "M"} />
+                    <Tooltip formatter={(value) =>
+                      typeof value === 'number'
+                        ? `${(value / 1e6).toFixed(2)}M`
+                        : Array.isArray(value)
+                        ? value.join(", ")
+                        : value ?? ""
+                    } />
                     <Bar dataKey="volume" fill="#3B82F6" />
                   </BarChart>
                 </ResponsiveContainer>
