@@ -13,19 +13,18 @@ const NavItems = () => {
     }
 
     return (
-        <ul className="flex gap-8">
+        <ul className="flex min-w-max items-center gap-2">
             {Nav_Items.map(({ href, title }) => (
                 <li key={href}>
                     <Link 
                         href={href} 
-                        className={`text-sm font-medium transition-all duration-200 relative group ${
+                        className={`relative group block rounded-md px-3 py-2 text-sm font-semibold transition-all duration-200 ${
                             isActive(href)
-                                ? "text-blue-600 dark:text-blue-400"
-                                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                                ? "bg-blue-50 text-blue-700"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                         }`}
                     >
                         {title}
-                        <span className={`absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 dark:bg-blue-400 transition-all duration-200 group-hover:w-full ${isActive(href) ? "w-full" : ""}`}></span>
                     </Link>
                 </li>
             ))}

@@ -1,30 +1,36 @@
 @import "tailwindcss";
 
 @layer base {
-  * {
-    border-color: rgb(209, 213, 219);
+  :root {
+    --background: 246 248 251;
+    --foreground: 15 23 42;
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
+    --muted-foreground: 100 116 139;
   }
 
-  body {
-    background-color: rgb(255, 255, 255);
-    color: rgb(17, 24, 39);
+  * {
+    border-color: rgb(226, 232, 240);
   }
 
   html {
     scroll-behavior: smooth;
   }
 
-  .dark {
-    background-color: rgb(17, 24, 39);
-    color: rgb(243, 244, 246);
+  body {
+    margin: 0;
+    background: rgb(var(--background));
+    color: rgb(var(--foreground));
+    font-family: Arial, Helvetica, sans-serif;
+    text-rendering: geometricPrecision;
   }
 
-  .dark * {
-    border-color: rgb(75, 85, 99);
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
-/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -48,14 +54,13 @@
 }
 
 .animate-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.25s ease-in-out;
 }
 
 .slide-down {
-  animation: slideDown 0.3s ease-in-out;
+  animation: slideDown 0.25s ease-in-out;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -66,154 +71,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(209, 213, 219);
-  border-radius: 4px;
+  background-color: rgb(203, 213, 225);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(156, 163, 175);
+  background-color: rgb(148, 163, 184);
 }
-
-.dark ::-webkit-scrollbar-thumb {
-  background-color: rgb(107, 114, 128);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(156, 163, 175);
-}
-
-/* Header + Nav visual styles */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  height: 64px;
-  display: flex;
-  align-items: center;
-}
-
-.header > div {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.header nav {
-  display: block !important;
-}
-
-.header nav ul {
-  display: flex;
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  align-items: center;
-}
-
-.header nav a {
-  color: #cbd5e1;
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 0.45rem 0.7rem;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  transition: color 0.15s, background-color 0.15s, transform 0.08s;
-}
-
-.header nav a:hover {
-  color: #f59e0b;
-  background: rgba(255, 255, 255, 0.03);
-  transform: translateY(-1px);
-}
-
-.header nav a.text-gray-100,
-.header nav a.text-gray-100:hover {
-  color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.header img,
-.header .h-8 {
-  height: 32px;
-}
-
-main {
-  padding-top: 0.5rem;
-}
-
-/* Header + Nav visual styles (no component changes) */
-.header{
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(15,23,42,0.9); /* dark slate */
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  height: 64px;
-  display: flex;
-  align-items: center;
-}
-
-/* center content and space between logo & nav */
-.header > div{
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-/* force nav visible and style list horizontally */
-.header nav{ display: block !important; }
-.header nav ul{
-  display: flex;
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  align-items: center;
-}
-
-/* nav links */
-.header nav a{
-  color: #cbd5e1; /* tailwind gray-300 */
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 0.45rem 0.7rem;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  transition: color .15s, background-color .15s, transform .08s;
-}
-
-/* hover and active */
-.header nav a:hover{
-  color: #f59e0b; /* yellow-500 */
-  background: rgba(255,255,255,0.03);
-  transform: translateY(-1px);
-}
-
-/* class applied by NavItems for active state (text-gray-100) */
-.header nav a.text-gray-100,
-.header nav a.text-gray-100:hover{
-  color: #ffffff !important;
-  background: rgba(255,255,255,0.04);
-}
-
-/* small screens: ensure logo size and spacing look good */
-.header img,
-.header .h-8{ height: 32px; }
-
-/* Keep page content visible under sticky header */
-main{ padding-top: 0.5rem; }

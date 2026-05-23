@@ -1,248 +1,391 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { mockPortfolio, mockChartData, mockTrendingStocks, mockNews } from "@/lib/mockData";
-import { PriceChange, StockCard } from "@/components/StockComponents";
-import { TrendingUp, TrendingDown, Plus, Eye } from "lucide-react";
 import Link from "next/link";
+import type { ElementType } from "react";
+import {
+  Activity,
+  ArrowRight,
+  Bell,
+  BriefcaseBusiness,
+  CalendarDays,
+  ChevronUp,
+  CircleDollarSign,
+  Eye,
+  LineChart as LineChartIcon,
+  Plus,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { mockNews, mockPortfolio, mockTrendingStocks, mockWatchlist } from "@/lib/mockData";
+import { PriceChange } from "@/components/StockComponents";
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+const allocationData = [
+  { name: "AAPL", value: 1824.5, color: "#2563eb" },
+  { name: "MSFT", value: 2076.65, color: "#059669" },
+  { name: "GOOGL", value: 1264.72, color: "#f59e0b" },
+  { name: "AMZN", value: 3832.6, color: "#dc2626" },
+  { name: "NVDA", value: 3493.8, color: "#7c3aed" },
+];
+
+const performanceData = [
+  { month: "Jan", value: 95000, benchmark: 91000 },
+  { month: "Feb", value: 105000, benchmark: 96500 },
+  { month: "Mar", value: 110000, benchmark: 102800 },
+  { month: "Apr", value: 108000, benchmark: 104400 },
+  { month: "May", value: 115000, benchmark: 109600 },
+  { month: "Jun", value: 125430, benchmark: 113900 },
+];
+
+const volumeData = [
+  { label: "9:30", buy: 46, sell: 28 },
+  { label: "10:30", buy: 58, sell: 32 },
+  { label: "11:30", buy: 42, sell: 39 },
+  { label: "12:30", buy: 64, sell: 26 },
+  { label: "1:30", buy: 71, sell: 34 },
+  { label: "2:30", buy: 55, sell: 48 },
+  { label: "3:30", buy: 82, sell: 36 },
+];
+
+const marketPulse = [
+  { label: "S&P 500", value: "5,321.4", change: "+0.82%" },
+  { label: "Nasdaq", value: "16,742.9", change: "+1.14%" },
+  { label: "VIX", value: "13.7", change: "-2.18%" },
+];
+
+const formatCurrency = (value: number) =>
+  value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
 export default function Dashboard() {
-  const allocationData = [
-    { name: 'AAPL', value: 1824.50 },
-    { name: 'MSFT', value: 2076.65 },
-    { name: 'GOOGL', value: 1264.72 },
-    { name: 'AMZN', value: 3832.60 },
-    { name: 'NVDA', value: 3493.80 },
-  ];
-
-  const performanceData = [
-    { month: 'Jan', value: 95000 },
-    { month: 'Feb', value: 105000 },
-    { month: 'Mar', value: 110000 },
-    { month: 'Apr', value: 108000 },
-    { month: 'May', value: 115000 },
-    { month: 'Jun', value: 125430.50 },
-  ];
+  const invested = mockPortfolio.holdings.reduce((total, holding) => total + holding.purchasePrice * holding.quantity, 0);
+  const totalGain = mockPortfolio.totalValue - invested;
+  const totalGainPercent = (totalGain / invested) * 100;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 py-8 px-4 md:px-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Welcome back!</h1>
-          <p className="text-gray-600 dark:text-gray-400">Here's your investment overview</p>
-        </div>
-      </section>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-        {/* Portfolio Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="border-l-4 border-l-blue-500">
-            <CardHeader className="pb-2">
-              <CardDescription>Total Portfolio Value</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">${mockPortfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-              <PriceChange change={mockPortfolio.todayGain} changePercent={mockPortfolio.todayGainPercent} className="mt-2" />
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-l-green-500">
-            <CardHeader className="pb-2">
-              <CardDescription>Total Gain</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-green-600">+$8,542.47</div>
-              <p className="text-sm text-gray-500 mt-2">Since inception</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-l-purple-500">
-            <CardHeader className="pb-2">
-              <CardDescription>Holdings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{mockPortfolio.holdings.length}</div>
-              <p className="text-sm text-gray-500 mt-2">Active stocks</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Portfolio Performance Chart */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Portfolio Performance</CardTitle>
-              <CardDescription>Your investment growth over time</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={performanceData}>
-                  <defs>
-                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => `$${value}`} />
-                  <Area type="monotone" dataKey="value" stroke="#3B82F6" fillOpacity={1} fill="url(#colorValue)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Asset Allocation */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Asset Allocation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={allocationData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {allocationData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) =>
-                    typeof value === 'number'
-                      ? `$${value.toFixed(2)}`
-                      : Array.isArray(value)
-                      ? value.join(", ")
-                      : value ?? ""
-                  } />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Holdings and Trending */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Top Holdings */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Your Holdings</CardTitle>
-                  <CardDescription>View all your stock positions</CardDescription>
+    <div className="min-h-screen bg-[#f6f8fb] text-slate-950">
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:px-6 xl:grid-cols-[1fr_360px]">
+          <div className="space-y-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  Market open
                 </div>
-                <Link href="/portfolio" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  View All →
+                <h1 className="max-w-3xl text-3xl font-bold leading-tight text-slate-950 md:text-5xl">
+                  Command center for your portfolio.
+                </h1>
+                <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
+                  Track performance, risk, holdings, and market movement from one focused trading workspace.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href="/search"
+                  className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+                >
+                  <Search className="h-4 w-4" />
+                  Search
+                </Link>
+                <Link
+                  href="/portfolio"
+                  className="inline-flex h-10 items-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add position
                 </Link>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {mockPortfolio.holdings.map((holding) => (
-                  <Link key={holding.symbol} href={`/${holding.symbol}`}>
-                    <div className="p-3 rounded-lg border hover:shadow-md transition-all cursor-pointer">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="font-semibold">{holding.symbol}</p>
-                          <p className="text-xs text-gray-500">{holding.quantity} shares</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">${holding.value.toFixed(2)}</p>
-                          <PriceChange change={holding.gain} changePercent={holding.gainPercent} />
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Trending Stocks */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Trending Today</CardTitle>
-                  <CardDescription>Popular stocks in the market</CardDescription>
-                </div>
-                <Link href="/search" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  Explore →
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {mockTrendingStocks.map((stock) => (
-                  <Link key={stock.symbol} href={`/${stock.symbol}`}>
-                    <div className="p-3 rounded-lg border hover:shadow-md transition-all cursor-pointer">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                            <span className="text-sm font-bold">{stock.symbol.substring(0, 1)}</span>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-sm">{stock.symbol}</p>
-                            <p className="text-xs text-gray-500">${stock.price.toFixed(2)}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {stock.trend === 'up' ? (
-                            <TrendingUp className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <TrendingDown className="w-5 h-5 text-red-600" />
-                          )}
-                          <span className={stock.trend === 'up' ? 'text-green-600 font-semibold text-sm' : 'text-red-600 font-semibold text-sm'}>
-                            +{stock.changePercent.toFixed(2)}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Market News */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Market News</CardTitle>
-            <CardDescription>Latest financial news and updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {mockNews.map((article) => (
-                <div key={article.id} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="bg-gray-200 h-40 flex items-center justify-center text-gray-400">
-                    <Eye className="w-8 h-8" />
+            <div className="grid gap-3 md:grid-cols-3">
+              {marketPulse.map((item) => (
+                <div key={item.label} className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                  <div className="flex items-center justify-between text-sm text-slate-500">
+                    <span>{item.label}</span>
+                    <span className={item.change.startsWith("+") ? "text-emerald-600" : "text-red-600"}>{item.change}</span>
                   </div>
-                  <div className="p-4">
-                    <h4 className="font-semibold text-sm mb-2 line-clamp-2">{article.title}</h4>
-                    <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span>{article.source}</span>
-                      <span>{article.time}</span>
-                    </div>
-                  </div>
+                  <div className="mt-1 text-xl font-bold text-slate-950">{item.value}</div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <aside className="rounded-lg border border-slate-200 bg-slate-950 p-5 text-white shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-400">Portfolio value</p>
+                <p className="mt-1 text-3xl font-bold">{formatCurrency(mockPortfolio.totalValue)}</p>
+              </div>
+              <div className="rounded-md bg-white/10 p-3">
+                <BriefcaseBusiness className="h-6 w-6 text-emerald-300" />
+              </div>
+            </div>
+            <div className="mt-5 flex items-center gap-3">
+              <PriceChange change={mockPortfolio.todayGain} changePercent={mockPortfolio.todayGainPercent} />
+              <span className="text-sm text-slate-400">today</span>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-md bg-white/10 p-3">
+                <p className="text-slate-400">Buying power</p>
+                <p className="mt-1 font-semibold">$18,420</p>
+              </div>
+              <div className="rounded-md bg-white/10 p-3">
+                <p className="text-slate-400">Risk score</p>
+                <p className="mt-1 font-semibold">Moderate</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <MetricCard icon={CircleDollarSign} label="Total gain" value={`+${formatCurrency(totalGain)}`} detail={`+${totalGainPercent.toFixed(2)}% all time`} tone="emerald" />
+          <MetricCard icon={Activity} label="Daily P/L" value={`+${formatCurrency(mockPortfolio.todayGain)}`} detail="+1.90% vs yesterday" tone="blue" />
+          <MetricCard icon={ShieldCheck} label="Diversification" value="82/100" detail="5 sectors balanced" tone="amber" />
+          <MetricCard icon={Bell} label="Alerts" value="7 active" detail="2 near trigger price" tone="violet" />
+        </div>
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_360px]">
+          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Performance</p>
+                <h2 className="mt-1 text-xl font-bold text-slate-950">Portfolio vs benchmark</h2>
+              </div>
+              <div className="flex rounded-md border border-slate-200 bg-slate-50 p-1 text-sm">
+                {["1D", "1W", "1M", "6M", "1Y"].map((item, index) => (
+                  <button
+                    key={item}
+                    className={`h-8 rounded px-3 font-semibold transition ${index === 3 ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 h-[340px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={performanceData} margin={{ top: 10, right: 8, left: -16, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="portfolioFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.28} />
+                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke="#e2e8f0" vertical={false} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} tickFormatter={(value) => `$${Number(value) / 1000}k`} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0" }} />
+                  <Area type="monotone" dataKey="benchmark" stroke="#94a3b8" strokeWidth={2} fill="transparent" strokeDasharray="5 5" />
+                  <Area type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={3} fill="url(#portfolioFill)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Allocation</p>
+                <h2 className="mt-1 text-xl font-bold text-slate-950">Holdings mix</h2>
+              </div>
+              <LineChartIcon className="h-5 w-5 text-slate-400" />
+            </div>
+            <div className="mt-3 h-[230px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={allocationData} innerRadius={66} outerRadius={92} paddingAngle={3} dataKey="value">
+                    {allocationData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0" }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-3">
+              {allocationData.map((item) => (
+                <div key={item.name} className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2 font-medium text-slate-700">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                    {item.name}
+                  </span>
+                  <span className="text-slate-500">{((item.value / mockPortfolio.totalValue) * 100).toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-200 p-5">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Positions</p>
+                <h2 className="mt-1 text-xl font-bold text-slate-950">Top holdings</h2>
+              </div>
+              <Link href="/portfolio" className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700">
+                View all
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {mockPortfolio.holdings.map((holding) => (
+                <Link key={holding.symbol} href={`/${holding.symbol}`} className="grid gap-3 p-4 transition hover:bg-slate-50 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-md bg-slate-100 text-sm font-bold text-slate-700">
+                      {holding.symbol.slice(0, 2)}
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-950">{holding.symbol}</p>
+                      <p className="text-sm text-slate-500">{holding.quantity} shares at ${holding.currentPrice.toFixed(2)}</p>
+                    </div>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <p className="font-bold text-slate-950">${holding.value.toFixed(2)}</p>
+                    <p className="text-sm text-slate-500">Market value</p>
+                  </div>
+                  <PriceChange change={holding.gain} changePercent={holding.gainPercent} />
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Order flow</p>
+                <h2 className="mt-1 text-xl font-bold text-slate-950">Intraday activity</h2>
+              </div>
+              <CalendarDays className="h-5 w-5 text-slate-400" />
+            </div>
+            <div className="mt-5 h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={volumeData} margin={{ top: 4, right: 0, left: -24, bottom: 0 }}>
+                  <CartesianGrid stroke="#e2e8f0" vertical={false} />
+                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                  <Tooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0" }} />
+                  <Bar dataKey="buy" fill="#059669" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="sell" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-950">Trending today</h2>
+              <Sparkles className="h-5 w-5 text-amber-500" />
+            </div>
+            <div className="space-y-3">
+              {mockTrendingStocks.map((stock) => (
+                <Link key={stock.symbol} href={`/${stock.symbol}`} className="flex items-center justify-between rounded-lg border border-slate-200 p-3 transition hover:border-blue-200 hover:bg-blue-50">
+                  <div>
+                    <p className="font-bold text-slate-950">{stock.symbol}</p>
+                    <p className="text-sm text-slate-500">${stock.price.toFixed(2)}</p>
+                  </div>
+                  <div className="flex items-center gap-2 font-semibold text-emerald-600">
+                    {stock.trend === "up" ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4 text-red-600" />}
+                    {stock.changePercent.toFixed(2)}%
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-950">Watchlist</h2>
+              <Link href="/watchlist" className="text-sm font-semibold text-blue-600 hover:text-blue-700">Open</Link>
+            </div>
+            <div className="space-y-3">
+              {mockWatchlist.map((stock) => (
+                <Link key={stock.symbol} href={`/${stock.symbol}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3 transition hover:bg-slate-100">
+                  <div>
+                    <p className="font-bold text-slate-950">{stock.symbol}</p>
+                    <p className="text-sm text-slate-500">{stock.name}</p>
+                  </div>
+                  <PriceChange change={stock.change} changePercent={stock.changePercent} />
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-950">Market news</h2>
+              <Eye className="h-5 w-5 text-slate-400" />
+            </div>
+            <div className="space-y-4">
+              {mockNews.map((article) => (
+                <article key={article.id} className="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
+                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+                    <span>{article.source}</span>
+                    <span className="h-1 w-1 rounded-full bg-slate-300" />
+                    <span>{article.time}</span>
+                  </div>
+                  <h3 className="text-sm font-bold leading-6 text-slate-950">{article.title}</h3>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
     </div>
+  );
+}
+
+type MetricCardProps = {
+  icon: ElementType;
+  label: string;
+  value: string;
+  detail: string;
+  tone: "emerald" | "blue" | "amber" | "violet";
+};
+
+const toneClasses = {
+  emerald: "bg-emerald-50 text-emerald-700",
+  blue: "bg-blue-50 text-blue-700",
+  amber: "bg-amber-50 text-amber-700",
+  violet: "bg-violet-50 text-violet-700",
+};
+
+function MetricCard({ icon: Icon, label, value, detail, tone }: MetricCardProps) {
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-slate-500">{label}</p>
+        <span className={`rounded-md p-2 ${toneClasses[tone]}`}>
+          <Icon className="h-4 w-4" />
+        </span>
+      </div>
+      <p className="mt-4 text-2xl font-bold text-slate-950">{value}</p>
+      <div className="mt-2 flex items-center gap-1 text-sm font-medium text-slate-500">
+        <ChevronUp className="h-4 w-4 text-emerald-500" />
+        {detail}
+      </div>
+    </section>
   );
 }
