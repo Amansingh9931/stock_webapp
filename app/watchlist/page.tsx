@@ -1,19 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { mockWatchlist } from "@/lib/mockData";
+import { useMarketQuotes } from "@/lib/api";
 import { PriceChange } from "@/components/StockComponents";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export default function WatchlistPage() {
   const [watchlist, setWatchlist] = useState(mockWatchlist);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"price" | "change" | "name">("price");
+  const { data: marketData } = useMarketQuotes(watchlist.map((stock) => stock.symbol));
+  const quoteBySymbol = new Map(marketData?.data.map((quote) => [quote.symbol, quote]));
 
   const filteredWatchlist = watchlist
+    .map((stock) => {
+      const quote = quoteBySymbol.get(stock.symbol);
+
+      return {
+        ...stock,
+        price: quote?.price ?? stock.price,
+        change: quote?.change ?? stock.change,
+        changePercent: quote?.changePercent ?? stock.changePercent,
+      };
+    })
     .filter((stock) =>
       stock.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
       stock.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -50,7 +63,7 @@ export default function WatchlistPage() {
           />
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as "price" | "change" | "name")}
             className="px-3 py-2 border rounded-lg bg-background"
           >
             <option value="price">Sort by Price</option>
@@ -70,7 +83,7 @@ export default function WatchlistPage() {
               <div className="text-center">
                 <p className="text-lg text-gray-500 mb-2">No stocks in watchlist</p>
                 <Link href="/search" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Add some stocks →
+                  Add some stocks
                 </Link>
               </div>
             </CardContent>
@@ -78,7 +91,7 @@ export default function WatchlistPage() {
         ) : (
           <div className="rounded-lg border overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 dark:bg-gray-900 font-semibold text-sm border-b">
+            <div className="grid grid-cols-[repeat(13,minmax(0,1fr))] gap-4 p-4 bg-gray-50 dark:bg-gray-900 font-semibold text-sm border-b">
               <div className="col-span-4">Stock</div>
               <div className="col-span-2 text-right">Price</div>
               <div className="col-span-2 text-right">Change</div>
@@ -91,7 +104,7 @@ export default function WatchlistPage() {
             <div className="divide-y">
               {filteredWatchlist.map((stock) => (
                 <Link key={stock.symbol} href={`/${stock.symbol}`}>
-                  <div className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-pointer">
+                  <div className="grid grid-cols-[repeat(13,minmax(0,1fr))] gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-pointer">
                     <div className="col-span-4">
                       <div className="font-semibold">{stock.symbol}</div>
                       <div className="text-sm text-gray-500">{stock.name}</div>

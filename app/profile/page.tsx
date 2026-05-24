@@ -1,9 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { User, Mail, Phone, Edit2, LogOut } from "lucide-react";
-import Link from "next/link";
 
 export default function ProfilePage() {
   return (

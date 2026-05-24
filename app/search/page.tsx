@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { mockStocks } from "@/lib/mockData";
+import { useMarketQuotes } from "@/lib/api";
 import { PriceChange, StockCard } from "@/components/StockComponents";
 import { Search, Clock } from "lucide-react";
 import Link from "next/link";
@@ -11,16 +12,34 @@ import Link from "next/link";
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>(["AAPL", "MSFT"]);
+  const symbols = mockStocks.map((stock) => stock.symbol);
+  const { data: marketData } = useMarketQuotes(symbols);
+  const stocks = useMemo(() => {
+    const quoteBySymbol = new Map(marketData?.data.map((quote) => [quote.symbol, quote]));
+
+    return mockStocks.map((stock) => {
+      const quote = quoteBySymbol.get(stock.symbol);
+
+      return {
+        ...stock,
+        price: quote?.price ?? stock.price,
+        change: quote?.change ?? stock.change,
+        changePercent: quote?.changePercent ?? stock.changePercent,
+        volume: quote?.volume ?? stock.volume,
+        marketCap: quote?.marketCap ?? stock.marketCap,
+      };
+    });
+  }, [marketData?.data]);
 
   const filteredStocks = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const query = searchQuery.toLowerCase();
-    return mockStocks.filter(
+    return stocks.filter(
       (stock) =>
         stock.symbol.toLowerCase().includes(query) ||
         stock.name.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, stocks]);
 
   const handleAddRecent = (symbol: string) => {
     setRecentSearches((prev) => [symbol, ...prev.filter((s) => s !== symbol)].slice(0, 5));
@@ -86,7 +105,7 @@ export default function SearchPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {mockStocks.slice(0, 6).map((stock) => (
+                  {stocks.slice(0, 6).map((stock) => (
                     <Link key={stock.symbol} href={`/${stock.symbol}`}>
                       <StockCard {...stock} />
                     </Link>
@@ -98,7 +117,7 @@ export default function SearchPage() {
         ) : (
           <div>
             <h2 className="text-2xl font-bold mb-6">
-              Search Results for "{searchQuery}"
+              Search Results for &quot;{searchQuery}&quot;
               {filteredStocks.length > 0 && (
                 <span className="text-lg font-normal text-gray-500 ml-2">({filteredStocks.length} found)</span>
               )}

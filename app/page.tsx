@@ -34,6 +34,7 @@ import {
   YAxis,
 } from "recharts";
 import { mockNews, mockPortfolio, mockTrendingStocks, mockWatchlist } from "@/lib/mockData";
+import { useMarketQuotes } from "@/lib/api";
 import { PriceChange } from "@/components/StockComponents";
 
 const allocationData = [
@@ -73,9 +74,13 @@ const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
 export default function Dashboard() {
+  const quoteSymbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "TSLA", "META", "NFLX"];
+  const { data: marketData } = useMarketQuotes(quoteSymbols);
+  const quoteBySymbol = new Map(marketData?.data.map((quote) => [quote.symbol, quote]));
   const invested = mockPortfolio.holdings.reduce((total, holding) => total + holding.purchasePrice * holding.quantity, 0);
   const totalGain = mockPortfolio.totalValue - invested;
   const totalGainPercent = (totalGain / invested) * 100;
+  const dataMode = marketData?.mode === "live" ? "Live data" : "Demo data";
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] text-slate-950">
@@ -86,7 +91,7 @@ export default function Dashboard() {
               <div>
                 <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  Market open
+                  {dataMode}
                 </div>
                 <h1 className="max-w-3xl text-3xl font-bold leading-tight text-slate-950 md:text-5xl">
                   Command center for your portfolio.
@@ -251,20 +256,32 @@ export default function Dashboard() {
             <div className="divide-y divide-slate-100">
               {mockPortfolio.holdings.map((holding) => (
                 <Link key={holding.symbol} href={`/${holding.symbol}`} className="grid gap-3 p-4 transition hover:bg-slate-50 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+                  {(() => {
+                    const quote = quoteBySymbol.get(holding.symbol);
+                    const currentPrice = quote?.price ?? holding.currentPrice;
+                    const value = currentPrice * holding.quantity;
+                    const gain = value - holding.purchasePrice * holding.quantity;
+                    const gainPercent = (gain / (holding.purchasePrice * holding.quantity)) * 100;
+
+                    return (
+                      <>
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-md bg-slate-100 text-sm font-bold text-slate-700">
                       {holding.symbol.slice(0, 2)}
                     </div>
                     <div>
                       <p className="font-bold text-slate-950">{holding.symbol}</p>
-                      <p className="text-sm text-slate-500">{holding.quantity} shares at ${holding.currentPrice.toFixed(2)}</p>
+                      <p className="text-sm text-slate-500">{holding.quantity} shares at ${currentPrice.toFixed(2)}</p>
                     </div>
                   </div>
                   <div className="text-left sm:text-right">
-                    <p className="font-bold text-slate-950">${holding.value.toFixed(2)}</p>
+                    <p className="font-bold text-slate-950">${value.toFixed(2)}</p>
                     <p className="text-sm text-slate-500">Market value</p>
                   </div>
-                  <PriceChange change={holding.gain} changePercent={holding.gainPercent} />
+                  <PriceChange change={gain} changePercent={gainPercent} />
+                      </>
+                    );
+                  })()}
                 </Link>
               ))}
             </div>
@@ -302,14 +319,24 @@ export default function Dashboard() {
             <div className="space-y-3">
               {mockTrendingStocks.map((stock) => (
                 <Link key={stock.symbol} href={`/${stock.symbol}`} className="flex items-center justify-between rounded-lg border border-slate-200 p-3 transition hover:border-blue-200 hover:bg-blue-50">
+                  {(() => {
+                    const quote = quoteBySymbol.get(stock.symbol);
+                    const price = quote?.price ?? stock.price;
+                    const changePercent = quote?.changePercent ?? stock.changePercent;
+
+                    return (
+                      <>
                   <div>
                     <p className="font-bold text-slate-950">{stock.symbol}</p>
-                    <p className="text-sm text-slate-500">${stock.price.toFixed(2)}</p>
+                    <p className="text-sm text-slate-500">${price.toFixed(2)}</p>
                   </div>
                   <div className="flex items-center gap-2 font-semibold text-emerald-600">
-                    {stock.trend === "up" ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4 text-red-600" />}
-                    {stock.changePercent.toFixed(2)}%
+                    {changePercent >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4 text-red-600" />}
+                    {changePercent.toFixed(2)}%
                   </div>
+                      </>
+                    );
+                  })()}
                 </Link>
               ))}
             </div>
@@ -323,11 +350,19 @@ export default function Dashboard() {
             <div className="space-y-3">
               {mockWatchlist.map((stock) => (
                 <Link key={stock.symbol} href={`/${stock.symbol}`} className="flex items-center justify-between rounded-lg bg-slate-50 p-3 transition hover:bg-slate-100">
+                  {(() => {
+                    const quote = quoteBySymbol.get(stock.symbol);
+
+                    return (
+                      <>
                   <div>
                     <p className="font-bold text-slate-950">{stock.symbol}</p>
                     <p className="text-sm text-slate-500">{stock.name}</p>
                   </div>
-                  <PriceChange change={stock.change} changePercent={stock.changePercent} />
+                  <PriceChange change={quote?.change ?? stock.change} changePercent={quote?.changePercent ?? stock.changePercent} />
+                      </>
+                    );
+                  })()}
                 </Link>
               ))}
             </div>

@@ -1,8 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { mockChartData, mockStocks } from "@/lib/mockData";
+import { useStockDetails } from "@/lib/api";
 import { PriceChange } from "@/components/StockComponents";
 import { Plus, Share2, Heart } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -10,15 +11,27 @@ import { useParams } from "next/navigation";
 export default function StockDetailsPage() {
   const params = useParams();
   const symbol = (params?.stock as string) || "AAPL";
+  const { data: liveData } = useStockDetails(symbol);
   
-  const stock = mockStocks.find((s) => s.symbol === symbol);
+  const fallbackStock = mockStocks.find((s) => s.symbol === symbol);
+  const liveQuote = liveData?.data.quote;
+  const stock = fallbackStock && {
+    ...fallbackStock,
+    price: liveQuote?.price ?? fallbackStock.price,
+    change: liveQuote?.change ?? fallbackStock.change,
+    changePercent: liveQuote?.changePercent ?? fallbackStock.changePercent,
+    volume: liveQuote?.volume ?? fallbackStock.volume,
+    marketCap: liveQuote?.marketCap ?? fallbackStock.marketCap,
+    name: liveQuote?.name ?? fallbackStock.name,
+  };
+  const chartData = liveData?.data.chart ?? mockChartData;
 
   if (!stock) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Stock not found</h1>
-          <p className="text-gray-500">The stock you're looking for doesn't exist</p>
+          <p className="text-gray-500">The stock you are looking for does not exist</p>
         </div>
       </div>
     );
@@ -52,6 +65,9 @@ export default function StockDetailsPage() {
               <div>
                 <h1 className="text-3xl font-bold">{symbol}</h1>
                 <p className="text-gray-500">{stock.name}</p>
+                <p className="mt-1 text-xs font-semibold uppercase text-slate-400">
+                  {liveData?.mode === "live" ? "Live quote" : "Demo quote"}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-4 mt-4">
@@ -97,7 +113,7 @@ export default function StockDetailsPage() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={mockChartData}>
+                  <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="time" />
                     <YAxis domain={["dataMin", "dataMax"]} />
@@ -163,11 +179,11 @@ export default function StockDetailsPage() {
                 </div>
                 <div className="flex justify-between pb-3 border-b">
                   <span className="text-gray-500">52w High</span>
-                  <span className="font-semibold">$199.62</span>
+                  <span className="font-semibold">${(liveQuote?.high ?? 199.62).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pb-3 border-b">
                   <span className="text-gray-500">52w Low</span>
-                  <span className="font-semibold">$164.08</span>
+                  <span className="font-semibold">${(liveQuote?.low ?? 164.08).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pb-3 border-b">
                   <span className="text-gray-500">P/E Ratio</span>

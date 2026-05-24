@@ -81,7 +81,7 @@ export default function SignInPage() {
                 <div className="w-full border-t"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-slate-950">Don't have an account?</span>
+                <span className="px-2 bg-white dark:bg-slate-950">Do not have an account?</span>
               </div>
             </div>
 

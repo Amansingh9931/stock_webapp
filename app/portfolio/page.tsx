@@ -3,9 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 import { mockPortfolio } from "@/lib/mockData";
-import { PriceChange } from "@/components/StockComponents";
 import Link from "next/link";
-import { Download, TrendingUp } from "lucide-react";
+import { Download } from "lucide-react";
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
